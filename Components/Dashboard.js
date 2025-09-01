@@ -32,6 +32,8 @@ const Dashboard = ({ navigation }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recognizedText, setRecognizedText] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -80,35 +82,38 @@ const Dashboard = ({ navigation }) => {
     }
   };
 
-
   const callApiForVideos = async (inputText) => {
     try {
-      console.log('Calling API with text:', inputText); // ✅ Confirmation log
+      setStatusMsg(''); // reset any previous status
+      console.log('Calling API with text:', inputText);
 
       const response = await fetch('http://192.168.43.12:3000/api/text-to-sign', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sentence: inputText }),
       });
 
       const data = await response.json();
+      console.log('API response received:', data);
 
-      console.log('API response received:', data); // ✅ Confirmation log
-      if (data.videos && data.videos.length > 0) {
+      if (Array.isArray(data.videos) && data.videos.length > 0) {
         setVideoList(data.videos);
         setCurrentIndex(0);
         setIsPlaying(true);
+        setStatusMsg(''); // clear msg on success
       } else {
         setVideoList([]);
         setIsPlaying(false);
+        setStatusMsg('No video found for this text'); // <-- show this
       }
-
     } catch (error) {
       console.error('Error fetching videos:', error);
+      setVideoList([]);
+      setIsPlaying(false);
+      setStatusMsg('Couldn’t fetch videos. Please try again.'); // network/server error
     }
   };
+
 
   useEffect(() => {
     Voice.onSpeechEnd = onSpeechEndHandler;
@@ -182,7 +187,11 @@ const Dashboard = ({ navigation }) => {
               resizeMode="contain"
               onBuffer={() => console.log('⏳ Buffering...')}
               onLoad={() => console.log('✅ Video loaded')}
-              onError={(e) => console.log('❌ Video error:', e)}
+              onError={(e) => {
+                console.log('❌ Video error:', e);
+                setIsPlaying(false);
+                setStatusMsg('Problem playing the video');
+              }}
               onEnd={() => {
                 if (currentIndex + 1 < videoList.length) {
                   setCurrentIndex(currentIndex + 1);
@@ -194,13 +203,19 @@ const Dashboard = ({ navigation }) => {
               repeat={false}
             />
           ) : (
-            <Image
-              style={styles.avatar}
-              source={require('../assets/images/staticPose.png')}
-              resizeMode="contain"
-            />
+            <>
+              <Image
+                style={styles.avatar}
+                source={require('../assets/images/staticPose.png')}
+                resizeMode="contain"
+              />
+              {!!statusMsg && (
+                <Text style={styles.statusText}>{statusMsg}</Text>
+              )}
+            </>
           )}
         </View>
+
 
         {/* Input and Footer */}
         <View style={styles.bottomContainer}>
@@ -293,4 +308,11 @@ const styles = StyleSheet.create({
   camera: {
     marginLeft: 10,
   },
+  statusText: {
+    marginTop: 8,
+    color: '#666',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+
 });
