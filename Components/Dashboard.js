@@ -19,6 +19,7 @@ import auth from '@react-native-firebase/auth';
 import Video from 'react-native-video';
 import Voice from '@react-native-voice/voice';
 import { useRoute } from '@react-navigation/native';
+import { useAuth } from '../Firebase-Functions/AuthProvider';
 
 const Dashboard = ({ navigation }) => {
   const [isTyping, setIsTyping] = useState(false);
@@ -31,6 +32,14 @@ const Dashboard = ({ navigation }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recognizedText, setRecognizedText] = useState('');
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+    }
+  }, [user, navigation]);
+
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -76,7 +85,7 @@ const Dashboard = ({ navigation }) => {
     try {
       console.log('Calling API with text:', inputText); // ✅ Confirmation log
 
-      const response = await fetch('http://192.168.43.90:3000/api/text-to-sign', {
+      const response = await fetch('http://192.168.187.12:3000/api/text-to-sign', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

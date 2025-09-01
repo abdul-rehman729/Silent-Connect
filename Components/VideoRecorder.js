@@ -72,7 +72,7 @@ const VideoRecorder = ({ navigation }) => {
                             setTimeout(async () => {
                                 await playLoadingSequence(); // ⏳ Now start step-by-step message
 
-                                const response = await fetch('http://192.168.43.35:3000/api/sign-to-text/predict', {
+                                const response = await fetch('http://192.168.187.12:3000/api/sign-to-text/predict', {
                                     method: 'POST',
                                     body: data,
                                     headers: {

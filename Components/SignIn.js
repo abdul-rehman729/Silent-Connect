@@ -31,18 +31,17 @@ export default function SignIn({ navigation }) {
 
         console.log(result)
 
-        if (result.success && result.user) { // Ensure result.user exists
+        if (result.success && result.user) {
+            // (optional) keep your session logging if you want
             const sessionRef = await firestore().collection('sessions').add({
-                userId: result.user.uid, // Use the returned user UID
+                userId: result.user.uid,
                 sessionStart: firestore.FieldValue.serverTimestamp(),
                 sessionEnd: null,
             });
-
             await AsyncStorage.setItem('sessionId', sessionRef.id);
-
             alert(result.message);
-            navigation.navigate('Dashboard');
             resetForm();
+            // do not navigate; RootNavigator will switch stacks automatically
         } else {
             setBackendError(result.message || 'Something went wrong. Please try again.');
         }

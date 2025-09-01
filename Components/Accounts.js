@@ -27,7 +27,6 @@ const Accounts = ({ navigation }) => {
       .signOut()
       .then(() => {
         console.log('User signed out');
-        navigation.navigate('SignIn');
       })
       .catch((error) => console.error('Sign out error:', error));
   };
