@@ -139,7 +139,7 @@ const History = ({ navigation }) => {
                             <View style={styles.itemContainer}>
                                 <View style={styles.textContainer}>
                                     <Text style={styles.itemText}>{item.inputText || 'No Input Text Available'}</Text>
-                                    <Text style={styles.dateText}>{new Date(item.createdAt.seconds * 1000).toLocaleString()}</Text>
+                                    {/* <Text style={styles.dateText}>{new Date(item.createdAt.seconds * 1000).toLocaleString()}</Text> */}
                                 </View>
                                 <View style={styles.iconContainer}>
                                     <TouchableOpacity onPress={() => handlePlayPress(item.inputText)}>
